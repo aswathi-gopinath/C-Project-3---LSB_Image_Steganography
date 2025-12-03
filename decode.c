@@ -36,7 +36,9 @@ Status read_and_validate_decode_args(char *argv[], DecodeInfo *decInfo)
         }
         else
         {
-            decInfo->output_file_fname = "decoded_secret_msg";
+            char *buffer = "decoded_secret_msg";
+            decInfo->output_file_fname = malloc(strlen(buffer) + 10);
+            strcpy(decInfo->output_file_fname, buffer);
             printf("Output file is created\n");
         }
         return e_success;
