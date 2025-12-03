@@ -20,15 +20,24 @@ Status read_and_validate_encode_args(char *argv[], EncodeInfo *encInfo)
     {
         printf("Input file with .bmp extension is passed\n");
          encInfo->src_image_fname =  argv[2]; 
-        if(strstr(argv[3], ".txt")!= NULL)
-        {
-            printf("Secret file with .txt extension is passed\n");
-            encInfo->secret_fname = argv[3];
-            strcpy(encInfo->extn_secret_file, ".txt");
-            if(argv[4]!=NULL)
+            int flag = 0;
+            for(int i =0; argv[3][i]!='\0'; i++)
             {
+                if(argv[3][i] == '.') flag = i;
+            }
+            printf("Secret file with %s extension is passed\n", argv[3]+flag);
+            encInfo->secret_fname = argv[3];
+            strcpy(encInfo->extn_secret_file, argv[3]+flag);
+            if(argv[4])
+            {
+                if(strstr(argv[4],".bmp")!=NULL){
                 encInfo->stego_image_fname = argv[4];
                 printf("Output file is passed\n");
+                }
+                else{
+                    printf("Output file passed is not a .bmp file\n");
+                    return e_failure;
+                }
             }
             else
             {
@@ -36,12 +45,12 @@ Status read_and_validate_encode_args(char *argv[], EncodeInfo *encInfo)
                 printf("Output file is created\n");
             }
             return e_success;
-        }
-        else 
+       /* else 
         {
             printf("Invalid secret file extension\n");
             return e_failure;
         }
+            */
     }
     else
     {
@@ -140,7 +149,7 @@ Status check_capacity(EncodeInfo *encInfo)
     uint image_capacity = get_image_size_for_bmp(encInfo->fptr_src_image);
     encInfo->size_secret_file = get_file_size(encInfo->fptr_secret);
     //The cover image must have enough pixels to store all header + secret bits.
-    if(image_capacity >((2 + 4 + 4 + 4+ encInfo->size_secret_file)*8))
+    if(image_capacity >((2 + 4 + strlen(encInfo->extn_secret_file) + 4+ encInfo->size_secret_file)*8))
     {
         printf("Image file have proper capacity to encode secret data\n");
         return e_success;
